@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+  const dadosUsuario = localStorage.getItem("userData");
+  if (!dadosUsuario) {
+    alert("Acesso negado! Você precisa fazer login para acessar esta área.");
+    window.location.href = "Login.html";
+  }
+</script>
+  <title>Projeto Website</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">	
+  <style>
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <div class="container-fluid">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href= "Login.html">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Aluno.html">Aluno</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Professor.html">Professor</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Disciplina.html">Disciplina</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Turma.html">Turma</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Matricula.html">Matrícula</a>
+      </li>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="Notas.html">Notas e Frequência</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+<div class="mt-4 p-5 bg-dark text-white rounded text-center">
+<h1>Bem vindo ao Servidor da Universidade</h1>
+<p> Aqui você poderá escolher qual das opções acima escolherá e executar o CRUD. </p>
+</div>
+   <div class="row">
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h1>Aluno</h1>
+<br>
+<p><small>No item Aluno você poderá criar, atualizar, listar e deletar alunos no Servidor.</small> </p> 
+
+ </div>
+</div>
+  
+
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h1>Professor</h1>
+<br>
+<p><small>No item Professor você poderá criar, atualizar, listar e deletar professores no Servidor.</small> </p> 
+
+ </div>
+</div>
+
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h1>Disciplina</h1>
+<br>
+<p><small>No item Disciplina você poderá criar, atualizar, listar e deletar disciplinas no Servidor.</small> </p> 
+
+ </div>
+</div>
+
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h1>Turma</h1>
+<br>
+<p><small>No item Turma você poderá criar, atualizar, listar e deletar turmas no Servidor.</small> </p> 
+
+ </div>
+</div>
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+    <div class="text-center">
+  
+      <img src = "imagens/logo.png" width="230px" height="130px">
+    
+    </div>
+ </div>
+</div>
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h1>Matrícula</h1>
+<br>
+<p><small>No item Matrícula você poderá criar, atualizar, listar e deletar matrículas no Servidor.</small></p> 
+
+ </div>
+</div>
+
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+<h2>Notas/Frequência</h2>
+<br>
+<p><small>No item Notas e Frequência você poderá criar, atualizar, listar e deletar notas e frequências no Servidor.</small></p> 
+
+ </div>
+</div>
+
+
+<div class="col-md-3">
+ <div class="container mt-3 bg-info">
+
+  <h1 class="text-center">Programadores</h1>
+    <ul>
+
+        <li>Felipe Gamez Sanches</li>
+        <li>Matheus de Souza de Oliveira</li>
+        <li>Vitor Hens Fernades Andrade</li>
+
+    </ul>
+ </div>
+</div>
+
+   </div>
+</body>
+</html>

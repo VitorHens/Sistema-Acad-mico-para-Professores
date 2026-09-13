@@ -1,0 +1,45 @@
+{
+    "name": "aluno/exemplo-slim",
+    "description": "API REST moderna para Gestão de RH com Slim 4, JWT e arquitetura em camadas (MVC)",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Seu Nome",
+            "email": "seu.email@example.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Api\\": "src/api/"
+        }
+    },
+    "require": {
+        "slim/slim": "^4.15",
+        "slim/psr7": "^1.8",
+        "firebase/php-jwt": "^6.10",
+        "php-di/php-di": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.3"
+    },
+    "scripts": {
+        "start": "php -S localhost:8080 -t src/public",
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html coverage/",
+        "composer-update": "composer update",
+        "composer-dump": "composer dump-autoload"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        },
+        "audit": {
+            "block-insecure": false
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

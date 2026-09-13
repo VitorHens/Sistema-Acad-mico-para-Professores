@@ -1,0 +1,469 @@
+<!DOCTYPE HTML>
+<html lang="pt-br">
+<head>
+  <script>
+  const dadosUsuario = localStorage.getItem("userData");
+  if (!dadosUsuario) {
+    alert("Acesso negado! Você precisa fazer login para acessar esta área.");
+    window.location.href = "Login.html";
+  }
+</script>
+<title>Notas e Frequência</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body{ background:#f8f9fa; }
+
+  .step-num{
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0d6efd;
+    border: 2px solid #0d6efd;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .step-header{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .step-help{ font-size: 0.9rem; }
+
+  #divBotoes{ display:flex; gap:10px; flex-wrap:wrap; }
+  #divResposta:empty{ display:none; }
+  #divResposta{ margin-top:14px; }
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="Login.html">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Aluno.html">Aluno</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Professor.html">Professor</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Disciplina.html">Disciplina</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Turma.html">Turma</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Matricula.html">Matrícula</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="Notas.html">Notas e Frequência</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="mt-4 p-5 bg-dark text-white rounded text-center">
+      <h1>Notas e Frequência</h1>
+      <p class="mb-0">Cadastre, edite ou remova notas e frequência de uma matrícula. Selecione um registro na tabela para carregar seus dados no formulário antes de atualizar ou excluir.</p>
+    </div>
+
+    <div class="container mt-4 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <h4 class="mb-0">Buscar uma nota</h4>
+      </div>
+      <p class="step-help"><small>Digite o ID do registro para filtrar a lista abaixo em tempo real. Deixe em branco para ver todos.</small></p>
+      <label for="txtFiltroId" class="form-label">ID</label>
+      <input type="number" id="txtFiltroId" class="form-control" placeholder="Digite o ID">
+    </div>
+
+    <div class="container mt-4 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <h4 class="mb-0">Cadastrar ou editar nota/frequência</h4>
+      </div>
+      <p class="step-help"><small>Escolha a matrícula e informe a nota e a frequência. Para atualizar ou excluir um registro existente, clique antes em <strong>Selecionar</strong> na tabela — isso preenche o ID automaticamente.</small></p>
+
+      <div class="mb-3">
+        <label for="txtId" class="form-label">ID</label>
+        <input type="number" id="txtId" class="form-control mb-1" disabled placeholder="ID (para update ou delete)" />
+        <div class="form-text">Preenchido automaticamente ao clicar em "Selecionar" na tabela.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="selMatricula" class="form-label">Matrícula</label>
+        <select id="selMatricula" class="form-select">
+          <option value="">Carregando matrículas...</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="txtNota" class="form-label">Nota (0 a 100)</label>
+        <input type="number" id="txtNota" class="form-control" min="0" max="100" step="1" placeholder="Digite a nota">
+      </div>
+
+      <div class="mb-3">
+        <label for="txtFrequencia" class="form-label">Frequência % (0 a 100)</label>
+        <input type="number" id="txtFrequencia" class="form-control" min="0" max="100" step="0.1" placeholder="Digite a frequência">
+      </div>
+
+      <div class="mb-2" id="divBotoes"></div>
+
+      <div id="divResposta" class="alert d-inline-block p-2"></div>
+    </div>
+
+    <div class="container mt-4 mb-5 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <h4 class="mb-0">Notas e frequências cadastradas</h4>
+      </div>
+      <p class="step-help"><small>Clique em <strong>Listar</strong> para carregar a lista, ou em <strong>Selecionar</strong> em qualquer linha para editar/excluir aquele registro.</small></p>
+      <div id="divTabela"></div>
+    </div>
+
+  </div>
+
+  <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConfirmLabel">Confirmação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          Tem certeza que deseja excluir este registro?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmDelete">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import ApiService from './ApiService.js';
+
+    let userData = localStorage.getItem("userData");
+    if (userData) userData = JSON.parse(userData);
+    else window.location.href = "login.html";
+
+    const token = userData.data.token;
+    const api = new ApiService(token);
+
+    let API_DATA;
+
+    const txtId = document.getElementById("txtId");
+    const selMatricula = document.getElementById("selMatricula");
+    const txtNota = document.getElementById("txtNota");
+    const txtFrequencia = document.getElementById("txtFrequencia");
+    const txtFiltroId = document.getElementById("txtFiltroId");
+
+    const divBotoes = document.getElementById("divBotoes");
+    const divResposta = document.getElementById("divResposta");
+
+    // ======================== FUNÇÃO AUXILIAR PARA CRIAR BOTÕES ========================
+    function createButton(text, className) {
+      const btn = document.createElement("button");
+      btn.textContent = text;
+      btn.className = `btn ${className} flex-fill`;
+      return btn;
+    }
+
+    function labelMatricula(m) {
+      const nomeDisciplina = m.Turma && m.Turma.Disciplina ? m.Turma.Disciplina.dis_nome : `Disciplina ${m.Turma ? m.Turma.dis_id : ''}`;
+      const nomeAluno = m.Aluno ? m.Aluno.alu_nome : `Aluno ${m.alu_id}`;
+      const turId = m.Turma ? m.Turma.tur_id : m.tur_id;
+      return `Matrícula ${m.matr_id} - ${nomeAluno} (Turma ${turId} - ${nomeDisciplina})`;
+    }
+
+    // ======================== CARREGAR MATRÍCULAS ========================
+    async function carregarListasApoio() {
+      const respMatriculas = await api.get("/matriculas");
+
+      selMatricula.innerHTML = '<option value="">Selecione uma matrícula...</option>';
+      if (respMatriculas.success) {
+        const listaMatriculas = respMatriculas.data.Matriculas || respMatriculas.data.matriculas || respMatriculas.data;
+        listaMatriculas.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m.matr_id;
+          opt.textContent = labelMatricula(m);
+          selMatricula.appendChild(opt);
+        });
+      } else {
+        selMatricula.innerHTML = `<option value="">Erro ao carregar matrículas</option>`;
+      }
+    }
+
+    // ======================== BOTÕES CRUD ========================
+
+    // BOTÃO LISTAR
+    const btnListar = createButton("Listar", "btn-primary");
+    btnListar.onclick = listAll;
+    divBotoes.appendChild(btnListar);
+
+    const btnCriar = createButton("Criar", "btn-success");
+    btnCriar.onclick = async () => {
+      const matrId = parseInt(selMatricula.value, 10);
+      const nota = parseInt(txtNota.value, 10);
+      const fre = parseFloat(txtFrequencia.value);
+
+      if (!matrId || matrId <= 0) {
+        divResposta.textContent = "Selecione uma matrícula válida.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      if (isNaN(nota) || nota < 0 || nota > 100) {
+        divResposta.textContent = "Informe uma nota válida entre 0 e 100.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      if (isNaN(fre) || fre < 0 || fre > 100) {
+        divResposta.textContent = "Informe uma frequência válida entre 0 e 100.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      const objetoCriar = {
+        "nota": {
+          "fre": fre,
+          "nota": nota,
+          "matr_id": matrId
+        }
+      };
+
+      const resposta = await api.post("/notas", objetoCriar);
+      if (resposta.success) {
+        limparFormulario("Criado com sucesso!");
+        listAll();
+      } else {
+        divResposta.textContent = resposta.error.message;
+        divResposta.className = "alert alert-danger d-inline-block p-2";
+      }
+    };
+    divBotoes.appendChild(btnCriar);
+
+    const btnAtualizar = createButton("Atualizar", "btn-warning");
+    btnAtualizar.onclick = async () => {
+      const id = txtId.value.trim();
+      if (!id) {
+        divResposta.textContent = "Selecione um registro para atualizar";
+        divResposta.className = "alert alert-danger";
+        return;
+      }
+
+      const matrId = parseInt(selMatricula.value, 10);
+      const nota = parseInt(txtNota.value, 10);
+      const fre = parseFloat(txtFrequencia.value);
+
+      if (!matrId || matrId <= 0) {
+        divResposta.textContent = "Selecione uma matrícula válida.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      if (isNaN(nota) || nota < 0 || nota > 100) {
+        divResposta.textContent = "Informe uma nota válida entre 0 e 100.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      if (isNaN(fre) || fre < 0 || fre > 100) {
+        divResposta.textContent = "Informe uma frequência válida entre 0 e 100.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      const objetoAtualizar = {
+        "nota": {
+          "fre": fre,
+          "nota": nota,
+          "matr_id": matrId
+        }
+      };
+
+      const resposta = await api.put("/notas", id, objetoAtualizar);
+      if (!resposta.success) {
+        divResposta.textContent = resposta.error.message;
+        divResposta.className = "alert alert-danger";
+      } else {
+        limparFormulario("Atualizado com sucesso!");
+        listAll();
+      }
+    };
+    divBotoes.appendChild(btnAtualizar);
+
+    const btnExcluir = createButton("Excluir", "btn-danger");
+    btnExcluir.onclick = function () {
+      const id = txtId.value.trim();
+
+      if (!id) {
+        divResposta.textContent = "Informe o ID.";
+        divResposta.className = "alert alert-danger";
+        return;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+      modal.show();
+
+      const btnConfirmDelete = document.getElementById("btnConfirmDelete");
+      btnConfirmDelete.replaceWith(btnConfirmDelete.cloneNode(true));
+      const newBtnConfirm = document.getElementById("btnConfirmDelete");
+
+      newBtnConfirm.onclick = async function () {
+        try {
+          await api.delete("/notas", id);
+          listAll();
+          divResposta.textContent = `Registro ID ${id} excluído com sucesso.`;
+          divResposta.className = "alert alert-success";
+          limparFormulario();
+        } catch (error) {
+          divResposta.textContent = `Erro ao excluir registro: ${error.message}`;
+          divResposta.className = "alert alert-danger";
+        } finally {
+          modal.hide();
+        }
+      };
+    };
+    divBotoes.appendChild(btnExcluir);
+
+
+    async function listAll() {
+      const divTabela = document.getElementById("divTabela");
+      try {
+        API_DATA = await api.get("/notas");
+      } catch (error) {
+        divTabela.innerHTML = `<div class="alert alert-danger mb-0">Não foi possível conectar ao servidor: ${error.message}</div>`;
+        return;
+      }
+
+      if (API_DATA.success) {
+        renderTable(filterData());
+      } else {
+        const msg = (API_DATA.error && API_DATA.error.message) || "Erro desconhecido ao listar notas.";
+        divTabela.innerHTML = `<div class="alert alert-danger mb-0">Não foi possível carregar a lista: ${msg}</div>`;
+      }
+    }
+
+    function limparFormulario(message) {
+      divResposta.textContent = message || "Operação realizada com sucesso!";
+      divResposta.className = "alert alert-success";
+
+      txtId.value = "";
+      selMatricula.selectedIndex = 0;
+      txtNota.value = "";
+      txtFrequencia.value = "";
+    }
+
+    function renderTable(dados) {
+      const divTabela = document.getElementById("divTabela");
+      divTabela.innerHTML = "";
+
+      const table = document.createElement("table");
+      table.className = "table table-bordered table-striped bg-white";
+
+      const thead = document.createElement("thead");
+      thead.className = "table-primary";
+      const trHead = document.createElement("tr");
+
+      ["ID", "Aluno", "Turma", "Nota", "Frequência", "Ações"].forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        trHead.appendChild(th);
+      });
+
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      const listaNotas = dados.data.Notas || dados.data.notas || dados.data;
+
+      listaNotas.forEach(item => {
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td");
+        tdId.textContent = item.fre_id;
+        tr.appendChild(tdId);
+
+        const matricula = item.Matricula;
+
+        const tdAluno = document.createElement("td");
+        tdAluno.textContent = matricula && matricula.Aluno ? matricula.Aluno.alu_nome : `Aluno ${matricula ? matricula.alu_id : ''}`;
+        tr.appendChild(tdAluno);
+
+        const tdTurma = document.createElement("td");
+        if (matricula && matricula.Turma) {
+          const nomeDisciplina = matricula.Turma.Disciplina ? matricula.Turma.Disciplina.dis_nome : `Disciplina ${matricula.Turma.dis_id}`;
+          const nomeProfessor = matricula.Turma.Professor ? matricula.Turma.Professor.prof_nome : `Professor ${matricula.Turma.prof_id}`;
+          tdTurma.textContent = `Turma ${matricula.Turma.tur_id} - ${nomeDisciplina} (${nomeProfessor})`;
+        } else {
+          tdTurma.textContent = "-";
+        }
+        tr.appendChild(tdTurma);
+
+        const tdNota = document.createElement("td");
+        tdNota.textContent = item.nota;
+        tr.appendChild(tdNota);
+
+        const tdFrequencia = document.createElement("td");
+        tdFrequencia.textContent = `${item.fre}%`;
+        tr.appendChild(tdFrequencia);
+
+        const tdAcoes = document.createElement("td");
+        const divBotoesAcao = document.createElement("div");
+        divBotoesAcao.className = "d-flex gap-2";
+
+        const btnSel = createButton("Selecionar", "btn-info");
+        btnSel.onclick = () => {
+          txtId.value = item.fre_id;
+          selMatricula.value = item.matr_id;
+          txtNota.value = item.nota;
+          txtFrequencia.value = item.fre;
+
+          divResposta.textContent = "";
+          divResposta.className = "";
+        };
+
+        divBotoesAcao.appendChild(btnSel);
+        tdAcoes.appendChild(divBotoesAcao);
+        tr.appendChild(tdAcoes);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      divTabela.appendChild(table);
+    }
+
+    await carregarListasApoio();
+    listAll();
+
+    txtFiltroId.addEventListener("input", () => renderTable(filterData()));
+
+    function filterData() {
+      if (!API_DATA || !API_DATA.data) return API_DATA;
+
+      const lista = API_DATA.data.Notas || API_DATA.data.notas || API_DATA.data;
+      const idFiltro = txtFiltroId.value.trim();
+
+      const dadosFiltrados = lista.filter(n => {
+        if (!idFiltro) return true;
+        return String(n.fre_id).includes(idFiltro);
+      });
+
+      return {
+        data: {
+          Notas: dadosFiltrados
+        }
+      };
+    }
+  </script>
+</body>
+</html>

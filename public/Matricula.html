@@ -1,0 +1,438 @@
+<!DOCTYPE HTML>
+<html lang="pt-br">
+<head>
+  <script>
+  const dadosUsuario = localStorage.getItem("userData");
+  if (!dadosUsuario) {
+    alert("Acesso negado! Você precisa fazer login para acessar esta área.");
+    window.location.href = "Login.html";
+  }
+</script>
+<title>Gerenciamento de Matrículas</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body{ background:#f8f9fa; }
+
+  .step-num{
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0d6efd;
+    border: 2px solid #0d6efd;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .step-header{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  .step-help{ font-size: 0.9rem; }
+
+  #divBotoes{ display:flex; gap:10px; flex-wrap:wrap; }
+  #divResposta:empty{ display:none; }
+  #divResposta{ margin-top:14px; }
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="Login.html">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Aluno.html">Aluno</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Professor.html">Professor</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Disciplina.html">Disciplina</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Turma.html">Turma</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="Matricula.html">Matrícula</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="Notas.html">Notas e Frequência</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="mt-4 p-5 bg-dark text-white rounded text-center">
+      <h1>Gerenciamento de Matrículas</h1>
+      <p class="mb-0">Cadastre, edite ou remova matrículas, associando um aluno a uma turma. Selecione um registro na tabela para carregar seus dados no formulário antes de atualizar ou excluir.</p>
+    </div>
+
+    <div class="container mt-4 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <h4 class="mb-0">Buscar uma matrícula</h4>
+      </div>
+      <p class="step-help"><small>Digite o ID da matrícula para filtrar a lista abaixo em tempo real. Deixe em branco para ver todas.</small></p>
+      <label for="txtFiltroId" class="form-label">ID da matrícula</label>
+      <input type="number" id="txtFiltroId" class="form-control" placeholder="Digite o ID da matrícula">
+    </div>
+
+    <div class="container mt-4 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <h4 class="mb-0">Cadastrar ou editar matrícula</h4>
+      </div>
+      <p class="step-help"><small>Escolha a turma e o aluno da matrícula. Para atualizar ou excluir uma matrícula existente, clique antes em <strong>Selecionar</strong> na tabela — isso preenche o ID automaticamente.</small></p>
+
+      <div class="mb-3">
+        <label for="txtId" class="form-label">ID</label>
+        <input type="number" id="txtId" class="form-control mb-1" disabled placeholder="ID (para update ou delete)" />
+        <div class="form-text">Preenchido automaticamente ao clicar em "Selecionar" na tabela.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="selTurma" class="form-label">Turma</label>
+        <select id="selTurma" class="form-select">
+          <option value="">Carregando turmas...</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="selAluno" class="form-label">Aluno</label>
+        <select id="selAluno" class="form-select">
+          <option value="">Carregando alunos...</option>
+        </select>
+      </div>
+
+      <div class="mb-2" id="divBotoes"></div>
+
+      <div id="divResposta" class="alert d-inline-block p-2"></div>
+    </div>
+
+    <div class="container mt-4 mb-5 bg-info rounded p-4">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <h4 class="mb-0">Matrículas cadastradas</h4>
+      </div>
+      <p class="step-help"><small>Clique em <strong>Listar</strong> para carregar a lista, ou em <strong>Selecionar</strong> em qualquer linha para editar/excluir aquele registro.</small></p>
+      <div id="divTabela"></div>
+    </div>
+
+  </div>
+
+  <div class="modal fade" id="modalConfirm" tabindex="-1" aria-labelledby="modalConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalConfirmLabel">Confirmação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          Tem certeza que deseja excluir este registro?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmDelete">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import ApiService from './ApiService.js';
+
+    let userData = localStorage.getItem("userData");
+    if (userData) userData = JSON.parse(userData);
+    else window.location.href = "login.html";
+
+    const token = userData.data.token;
+    const api = new ApiService(token);
+
+    let API_DATA;
+
+    const txtId = document.getElementById("txtId");
+    const selTurma = document.getElementById("selTurma");
+    const selAluno = document.getElementById("selAluno");
+    const txtFiltroId = document.getElementById("txtFiltroId");
+
+    const divBotoes = document.getElementById("divBotoes");
+    const divResposta = document.getElementById("divResposta");
+
+    // ======================== FUNÇÃO AUXILIAR PARA CRIAR BOTÕES ========================
+    function createButton(text, className) {
+      const btn = document.createElement("button");
+      btn.textContent = text;
+      btn.className = `btn ${className} flex-fill`;
+      return btn;
+    }
+
+    // ======================== CARREGAR TURMAS E ALUNOS ========================
+    async function carregarListasApoio() {
+      const [respTurmas, respAlunos] = await Promise.all([
+        api.get("/turmas"),
+        api.get("/alunos")
+      ]);
+
+      // Turmas
+      selTurma.innerHTML = '<option value="">Selecione uma turma...</option>';
+      if (respTurmas.success) {
+        const listaTurmas = respTurmas.data.Turmas || respTurmas.data.turmas || respTurmas.data;
+        listaTurmas.forEach(t => {
+          const opt = document.createElement("option");
+          opt.value = t.tur_id;
+          const nomeDisciplina = t.Disciplina ? t.Disciplina.dis_nome : `Disciplina ${t.dis_id}`;
+          const nomeProfessor = t.Professor ? t.Professor.prof_nome : `Professor ${t.prof_id}`;
+          opt.textContent = `Turma ${t.tur_id} - ${nomeDisciplina} (${nomeProfessor})`;
+          selTurma.appendChild(opt);
+        });
+      } else {
+        selTurma.innerHTML = `<option value="">Erro ao carregar turmas</option>`;
+      }
+
+      // Alunos
+      selAluno.innerHTML = '<option value="">Selecione um aluno...</option>';
+      if (respAlunos.success) {
+        const listaAlunos = respAlunos.data.Alunos || respAlunos.data.alunos || respAlunos.data;
+        listaAlunos.forEach(a => {
+          const opt = document.createElement("option");
+          opt.value = a.alu_id ?? a.id;
+          opt.textContent = a.alu_nome ?? a.nome;
+          selAluno.appendChild(opt);
+        });
+      } else {
+        selAluno.innerHTML = `<option value="">Erro ao carregar alunos</option>`;
+      }
+    }
+
+    // ======================== BOTÕES CRUD ========================
+
+    // BOTÃO LISTAR
+    const btnListar = createButton("Listar", "btn-primary");
+    btnListar.onclick = listAll;
+    divBotoes.appendChild(btnListar);
+
+    const btnCriar = createButton("Criar", "btn-success");
+    btnCriar.onclick = async () => {
+      const turId = parseInt(selTurma.value, 10);
+      const aluId = parseInt(selAluno.value, 10);
+
+      if (!turId || turId <= 0 || !aluId || aluId <= 0) {
+        divResposta.textContent = "Selecione uma turma e um aluno válidos.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      const objetoCriar = {
+        "matricula": {
+          "turma": { "tur_id": turId },
+          "aluno": { "alu_id": aluId }
+        }
+      };
+
+      const resposta = await api.post("/matriculas", objetoCriar);
+      if (resposta.success) {
+        limparFormulario("Criado com sucesso!");
+        listAll();
+      } else {
+        divResposta.textContent = resposta.error.message;
+        divResposta.className = "alert alert-danger d-inline-block p-2";
+      }
+    };
+    divBotoes.appendChild(btnCriar);
+
+    const btnAtualizar = createButton("Atualizar", "btn-warning");
+    btnAtualizar.onclick = async () => {
+      const id = txtId.value.trim();
+      if (!id) {
+        divResposta.textContent = "Selecione uma matrícula para atualizar";
+        divResposta.className = "alert alert-danger";
+        return;
+      }
+
+      const turId = parseInt(selTurma.value, 10);
+      const aluId = parseInt(selAluno.value, 10);
+
+      if (!turId || turId <= 0 || !aluId || aluId <= 0) {
+        divResposta.textContent = "Selecione uma turma e um aluno válidos.";
+        divResposta.className = "alert alert-warning";
+        return;
+      }
+
+      const objetoAtualizar = {
+        "matricula": {
+          "turma": { "tur_id": turId },
+          "aluno": { "alu_id": aluId }
+        }
+      };
+
+      const resposta = await api.put("/matriculas", id, objetoAtualizar);
+      if (!resposta.success) {
+        divResposta.textContent = resposta.error.message;
+        divResposta.className = "alert alert-danger";
+      } else {
+        limparFormulario("Atualizado com sucesso!");
+        listAll();
+      }
+    };
+    divBotoes.appendChild(btnAtualizar);
+
+    const btnExcluir = createButton("Excluir", "btn-danger");
+    btnExcluir.onclick = function () {
+      const id = txtId.value.trim();
+
+      if (!id) {
+        divResposta.textContent = "Informe o ID.";
+        divResposta.className = "alert alert-danger";
+        return;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('modalConfirm'));
+      modal.show();
+
+      const btnConfirmDelete = document.getElementById("btnConfirmDelete");
+      btnConfirmDelete.replaceWith(btnConfirmDelete.cloneNode(true));
+      const newBtnConfirm = document.getElementById("btnConfirmDelete");
+
+      newBtnConfirm.onclick = async function () {
+        try {
+          await api.delete("/matriculas", id);
+          listAll();
+          divResposta.textContent = `Matrícula ID ${id} excluída com sucesso.`;
+          divResposta.className = "alert alert-success";
+          limparFormulario();
+        } catch (error) {
+          divResposta.textContent = `Erro ao excluir matrícula: ${error.message}`;
+          divResposta.className = "alert alert-danger";
+        } finally {
+          modal.hide();
+        }
+      };
+    };
+    divBotoes.appendChild(btnExcluir);
+
+
+    async function listAll() {
+      const divTabela = document.getElementById("divTabela");
+      try {
+        API_DATA = await api.get("/matriculas");
+      } catch (error) {
+        divTabela.innerHTML = `<div class="alert alert-danger mb-0">Não foi possível conectar ao servidor: ${error.message}</div>`;
+        return;
+      }
+
+      if (API_DATA.success) {
+        renderTable(filterData());
+      } else {
+        const msg = (API_DATA.error && API_DATA.error.message) || "Erro desconhecido ao listar matrículas.";
+        divTabela.innerHTML = `<div class="alert alert-danger mb-0">Não foi possível carregar a lista: ${msg}</div>`;
+      }
+    }
+
+    function limparFormulario(message) {
+      divResposta.textContent = message || "Operação realizada com sucesso!";
+      divResposta.className = "alert alert-success";
+
+      txtId.value = "";
+      selTurma.selectedIndex = 0;
+      selAluno.selectedIndex = 0;
+    }
+
+    function renderTable(dados) {
+      const divTabela = document.getElementById("divTabela");
+      divTabela.innerHTML = "";
+
+      const table = document.createElement("table");
+      table.className = "table table-bordered table-striped bg-white";
+
+      const thead = document.createElement("thead");
+      thead.className = "table-primary";
+      const trHead = document.createElement("tr");
+
+      ["ID", "Turma", "Aluno", "Ações"].forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        trHead.appendChild(th);
+      });
+
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      const listaMatriculas = dados.data.Matriculas || dados.data.matriculas || dados.data;
+
+      listaMatriculas.forEach(matricula => {
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td");
+        tdId.textContent = matricula.matr_id;
+        tr.appendChild(tdId);
+
+        const tdTurma = document.createElement("td");
+        if (matricula.Turma) {
+          const nomeDisciplina = matricula.Turma.Disciplina ? matricula.Turma.Disciplina.dis_nome : `Disciplina ${matricula.Turma.dis_id}`;
+          const nomeProfessor = matricula.Turma.Professor ? matricula.Turma.Professor.prof_nome : `Professor ${matricula.Turma.prof_id}`;
+          tdTurma.textContent = `Turma ${matricula.Turma.tur_id} - ${nomeDisciplina} (${nomeProfessor})`;
+        } else {
+          tdTurma.textContent = `Turma ${matricula.tur_id}`;
+        }
+        tr.appendChild(tdTurma);
+
+        const tdAluno = document.createElement("td");
+        tdAluno.textContent = matricula.Aluno ? matricula.Aluno.alu_nome : `Aluno ${matricula.alu_id}`;
+        tr.appendChild(tdAluno);
+
+        const tdAcoes = document.createElement("td");
+        const divBotoesAcao = document.createElement("div");
+        divBotoesAcao.className = "d-flex gap-2";
+
+        const btnSel = createButton("Selecionar", "btn-info");
+        btnSel.onclick = () => {
+          txtId.value = matricula.matr_id;
+          selTurma.value = matricula.Turma ? matricula.Turma.tur_id : matricula.tur_id;
+          selAluno.value = matricula.Aluno ? matricula.Aluno.alu_id : matricula.alu_id;
+
+          divResposta.textContent = "";
+          divResposta.className = "";
+        };
+
+        divBotoesAcao.appendChild(btnSel);
+        tdAcoes.appendChild(divBotoesAcao);
+        tr.appendChild(tdAcoes);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      divTabela.appendChild(table);
+    }
+
+    await carregarListasApoio();
+    listAll();
+
+    txtFiltroId.addEventListener("input", () => renderTable(filterData()));
+
+    function filterData() {
+      if (!API_DATA || !API_DATA.data) return API_DATA;
+
+      const lista = API_DATA.data.Matriculas || API_DATA.data.matriculas || API_DATA.data;
+      const idFiltro = txtFiltroId.value.trim();
+
+      const dadosFiltrados = lista.filter(m => {
+        if (!idFiltro) return true;
+        return String(m.matr_id).includes(idFiltro);
+      });
+
+      return {
+        data: {
+          Matriculas: dadosFiltrados
+        }
+      };
+    }
+  </script>
+</body>
+</html>

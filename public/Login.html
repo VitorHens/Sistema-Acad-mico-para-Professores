@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login - Sistema Acadêmico</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        /* Estilização baseada em conceitos de interface de usuário (Aula 03x02) */
+        body {
+            background: radial-gradient(blue,black);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Bem-vindo</h2>
+            <p class="text-muted">Acesse sua conta de Professor</p>
+        </div>
+
+        <div id="divResposta"></div>
+
+        <div class="mb-3">
+            <label for="txtUsuario" class="form-label">Usuário</label>
+            <input type="text" id="txtUsuario" class="form-control" placeholder="Digite seu nome" />
+        </div>
+        
+        <div class="mb-4">
+            <label for="txtSenha" class="form-label">Senha / ID</label>
+            <input type="password" id="txtSenha" class="form-control" placeholder="••••••••" />
+        </div>
+
+        <div id="divBotoes"></div>
+    </div>
+
+    <script type="module">
+        import ApiService from './ApiService.js';
+
+        // Inicializa o serviço (Aula 03x04)
+        const api = new ApiService();
+
+        const txtUsuario = document.getElementById("txtUsuario");
+        const txtSenha = document.getElementById("txtSenha");
+        const divBotoes = document.getElementById("divBotoes");
+        const divResposta = document.getElementById("divResposta");
+
+        /**
+         * Exibe alertas de erro ou sucesso dinamicamente (Aula 03x02)
+         */
+        function exibirAlerta(mensagem, tipo = "danger") {
+            divResposta.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+        }
+
+        /**
+         * Cria o botão de login seguindo a lógica do seu código original
+         */
+        function init() {
+            const btnLogin = document.createElement("button");
+            btnLogin.textContent = "Entrar no Sistema";
+            btnLogin.className = "btn btn-primary btn-login";
+            
+            btnLogin.onclick = async () => {
+                const user = txtUsuario.value.trim();
+                const pass = txtSenha.value.trim();
+
+                // Validações básicas de formulário
+                if (!user || !pass) {
+                    exibirAlerta("Preencha todos os campos corretamente.");
+                    return;
+                }
+
+                // Estrutura de dados para o login de professores (conforme seu requisito)
+                const dadosLogin = {
+                    "professor": {
+                        "prof_nome": user,
+                        "prof_id": pass
+                    }
+                };
+
+                try {
+                    // Executa a requisição assíncrona (Aula 03x03)
+                    const respostaAPI = await api.post("/professores/login", dadosLogin);
+                    
+                    if (respostaAPI.success) {
+                        // Persistência de dados e JWT (Aula 03x01)
+                        localStorage.setItem("userData", JSON.stringify(respostaAPI));
+                        window.location.href = "dashboard.html";
+                    } else {
+                        exibirAlerta("Usuário ou senha incorretos.");
+                    }
+                } catch (error) {
+                    exibirAlerta("Erro ao conectar com o servidor.");
+                    console.error("Erro na API:", error);
+                }
+            };
+
+            divBotoes.appendChild(btnLogin);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -23,7 +23,7 @@
         "phpunit/phpunit": "^10.3"
     },
     "scripts": {
-        "start": "php -S localhost:8080 -t src/public",
+        "start": "php -S localhost:8080 -t public",
         "test": "phpunit",
         "test:coverage": "phpunit --coverage-html coverage/",
         "composer-update": "composer update",

@@ -1,0 +1,10 @@
+/vendor/
+.env
+.env.*
+!.env.example
+coverage/
+.phpunit.cache/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

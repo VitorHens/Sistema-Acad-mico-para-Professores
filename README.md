@@ -71,8 +71,8 @@ http://localhost:8080
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/VitorHens/Sistema-Acad-mico-para-Professores.git
-cd Sistema-Acad-mico-para-Professores
+git clone https://github.com/VitorHens/sistema-academico-professores.git
+cd sistema-academico-professores
 ```
 
 ### 2. Instale as dependências
